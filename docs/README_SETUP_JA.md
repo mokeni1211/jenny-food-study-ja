@@ -42,6 +42,8 @@ var ASSET_BASE_URL = "https://example.ac.jp/food-study";
 
 Survey Flow最上部にEmbedded Data要素を追加し、`embedded_data_fields.txt`の10項目を登録します。値は空欄のままです。この要素を実験ブロックより前に置きます。
 
+**重要（Qualtricsの新しい回答画面）：** フィールド名の`__js_`は省略しないでください。JavaScriptは`setJSEmbeddedData()`を使い、例えば`experiment_complete`をSurvey Flowの`__js_experiment_complete`に保存します。従来の`experiment_...`という名前の10項目は削除するか、この10項目で置き換えてください。
+
 ## 3. 通常質問を作る
 
 `survey_blueprint_ja.md`の順に、同意、参加前質問、食品認識、食品選好をQualtrics標準質問で作成します。
@@ -71,21 +73,21 @@ Survey OptionsまたはSurvey FlowのEnd of SurveyでCustom End of Survey Messag
 実験データは11試行ずつ、次の4列にJSONとして保存されます。
 
 ```text
-experiment_data_1
-experiment_data_2
-experiment_data_3
-experiment_data_4
+__js_experiment_data_1
+__js_experiment_data_2
+__js_experiment_data_3
+__js_experiment_data_4
 ```
 
 4つを順番に結合すると44試行になります。各試行には刺激ID、ブロック、F/J、キーコード、正答、反応時間、実測画像表示時間が含まれます。
 
-`experiment_complete=1`かつQualtricsのFinished列が完了を示す回答だけを支払い対象候補にします。ResponseIdとの一致も確認します。
+`__js_experiment_complete=1`かつQualtricsのFinished列が完了を示す回答だけを支払い対象候補にします。ResponseIdとの一致も確認します。
 
 ## 7. 必須テスト
 
 - Previewではなく匿名リンクでもテスト回答を1件送信する。
 - 44試行が4つのJSON列に11件ずつ保存される。
-- `experiment_complete=1`が保存される。
+- `__js_experiment_complete=1`が保存される。
 - `ResponseId`が終了画面に表示され、CSVにも同じ値がある。
 - cb→ccとcc→cbの両方が発生する。
 - 各刺激表示時間が概ね400 msである。
@@ -102,4 +104,3 @@ experiment_data_4
 - ResponseIDをCrowdWorksへ提出させるため、CrowdWorks参加者とQualtrics回答を対応づけられます。同意説明と倫理申請をその前提へ変更してください。
 - QualtricsのAnonymize Responses、IP記録、保存地域、保存期間は大学管理者へ確認してください。
 - 公開前に倫理審査番号、正式題目、データ保存・撤回方針を確定してください。
-

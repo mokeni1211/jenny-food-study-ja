@@ -11,7 +11,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
 
   /* Change this one line after publishing the static/ directory. */
   var ASSET_BASE_URL = "https://mokeni1211.github.io/jenny-food-study-ja/static";
-  var STUDY_VERSION = "ccb-ja-qualtrics-1.0.0";
+  var STUDY_VERSION = "ccb-ja-qualtrics-1.1.0";
   var itemOrder = ["p1","p2","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"];
   var correctKeys = [74,70,74,70,70,74,74,70,70,74,74,74,70,74,70,74,70,70,74,70,74,70,74,70,74,70,70,74,74,70,70,74,74,74,70,74,70,74,70,70,74,70,74,70];
   var blockOrder = Math.random() < 0.5 ? ["cb","cc"] : ["cc","cb"];
@@ -147,8 +147,23 @@ Qualtrics.SurveyEngine.addOnload(function () {
     document.addEventListener("keydown", keyHandler);
   }
 
+  function setExperimentData(name, value) {
+    /*
+     * The New Survey Taking Experience stores JavaScript-created Embedded
+     * Data through setJSEmbeddedData().  In Survey Flow the corresponding
+     * field must be named __js_<name>, while this call receives <name>.
+     * The fallback writes the same prefixed Survey Flow field in older
+     * Qualtrics survey engines.
+     */
+    if (typeof Qualtrics.SurveyEngine.setJSEmbeddedData === "function") {
+      Qualtrics.SurveyEngine.setJSEmbeddedData(name, String(value));
+    } else {
+      Qualtrics.SurveyEngine.setEmbeddedData("__js_" + name, String(value));
+    }
+  }
+
   function saveChunk(name, value) {
-    Qualtrics.SurveyEngine.setEmbeddedData(name, JSON.stringify(value));
+    setExperimentData(name, JSON.stringify(value));
   }
 
   function finishTask() {
@@ -158,14 +173,15 @@ Qualtrics.SurveyEngine.addOnload(function () {
       saveChunk("experiment_data_2", trials.slice(11, 22));
       saveChunk("experiment_data_3", trials.slice(22, 33));
       saveChunk("experiment_data_4", trials.slice(33, 44));
-      Qualtrics.SurveyEngine.setEmbeddedData("experiment_complete", "1");
-      Qualtrics.SurveyEngine.setEmbeddedData("experiment_version", STUDY_VERSION);
-      Qualtrics.SurveyEngine.setEmbeddedData("experiment_block_order", blockOrder.join("-"));
-      Qualtrics.SurveyEngine.setEmbeddedData("experiment_correct_count", String(correctCount));
-      Qualtrics.SurveyEngine.setEmbeddedData("experiment_started_at", startedAt);
-      Qualtrics.SurveyEngine.setEmbeddedData("experiment_finished_at", new Date().toISOString());
-      setHtml('<div class="ft-page" style="text-align:center"><h2>課題が終了しました</h2><p>回答を保存して次の質問へ進みます。そのままお待ちください。</p></div>');
-      window.setTimeout(function () { q.clickNextButton(); }, 700);
+      setExperimentData("experiment_complete", "1");
+      setExperimentData("experiment_version", STUDY_VERSION);
+      setExperimentData("experiment_block_order", blockOrder.join("-"));
+      setExperimentData("experiment_correct_count", String(correctCount));
+      setExperimentData("experiment_started_at", startedAt);
+      setExperimentData("experiment_finished_at", new Date().toISOString());
+      setHtml('<div class="ft-page" style="text-align:center"><h2>課題が終了しました</h2><p>回答をQualtricsに反映しています。画面が自動で切り替わるまで、そのままお待ちください。</p></div>');
+      /* Give JFE a full event-loop turn before submitting this page. */
+      window.setTimeout(function () { q.clickNextButton(); }, 1500);
     } catch (error) {
       console.error(error);
       setHtml('<div class="ft-page"><div class="ft-warning"><strong>課題データをQualtricsへ渡せませんでした。</strong><br>この画面を閉じず、調査担当者へご連絡ください。</div></div>');
