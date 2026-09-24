@@ -1,0 +1,17 @@
+Survey Flowの最上部にEmbedded Data要素を追加し、以下を1行ずつ登録してください。
+値は入力せず、フィールド名だけを登録します。
+
+experiment_data_1
+experiment_data_2
+experiment_data_3
+experiment_data_4
+experiment_complete
+experiment_version
+experiment_block_order
+experiment_correct_count
+experiment_started_at
+experiment_finished_at
+
+Qualtrics標準列のResponseIdをCrowdWorks完了コードとして使用します。
+独自のcompletion_codeフィールドは不要です。
+
