@@ -7,7 +7,7 @@
 | `static/img/` 47ファイル | GitHub Pagesまたは名古屋大学Webホスティングなど、HTTPSで一般公開できる静的領域 |
 | `experiment_question.html` | QualtricsのDescriptive Text質問本文（HTML表示） |
 | `experiment_question.js` | 同じ質問のQuestion options → Add JavaScript |
-| `embedded_data_fields.txt`記載の23項目 | Qualtrics Survey Flow最上部のEmbedded Data |
+| `embedded_data_fields.txt`記載の24項目 | Qualtrics Survey Flow最上部のEmbedded Data |
 | 同意・通常質問 | Qualtricsの標準質問として作成 |
 | `end_of_survey.html` | QualtricsのCustom End of Survey Message |
 
@@ -42,7 +42,7 @@ var ASSET_BASE_URL = "https://example.ac.jp/food-study";
 
 Survey Flow最上部にEmbedded Data要素を追加し、`embedded_data_fields.txt`の全項目を登録します。値は空欄のままです。この要素を実験ブロックより前に置きます。
 
-**重要（Qualtricsの新しい回答画面）：** フィールド名の`__js_`は省略しないでください。JavaScriptは`setJSEmbeddedData()`を使い、例えば`experiment_complete`をSurvey Flowの`__js_experiment_complete`に保存します。従来の接頭辞のない`experiment_...`の10項目は`__js_experiment_...`へ置き換え、さらに`__js_analysis_...`の13項目を追加してください。
+**重要（Qualtricsの新しい回答画面）：** フィールド名の`__js_`は省略しないでください。JavaScriptは`setJSEmbeddedData()`を使い、例えば`experiment_complete`をSurvey Flowの`__js_experiment_complete`に保存します。従来の接頭辞のない`experiment_...`の10項目は`__js_experiment_...`へ置き換え、さらに`__js_analysis_...`の14項目を追加してください。
 
 ## 3. 通常質問を作る
 
@@ -101,6 +101,7 @@ Qualtricsの1回答（1行）に、以下の短い解析用列が自動的に追
 | `__js_analysis_bias_cc` | ccの甘味多数正答率 − 非甘味多数正答率 |
 | `__js_analysis_food_quantity_bias` | 全甘味多数正答率 − 全非甘味多数正答率 |
 | `__js_analysis_median_rt_ms` | 本試行の反応時間中央値（ms） |
+| `__js_analysis_mean_rt_ms` | 本試行の反応時間平均（ms） |
 | `__js_analysis_mean_stimulus_duration_ms` | 本試行の実測提示時間平均（ms） |
 
 `__js_experiment_complete=1`かつQualtricsのFinished列が完了を示す回答だけを支払い対象候補にします。ResponseIdとの一致も確認します。

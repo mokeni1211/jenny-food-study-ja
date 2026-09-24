@@ -31,10 +31,12 @@ check(js.includes('test_part: isPractice ? "practice" : "main"'), "practice/main
 check(js.includes("correctKeyByStimulus[stimulusId]"), "stimulus-keyed answer lookup not found");
 check(js.includes('numerosity_outcome: metadata.sweet_more ? "sweet_more" : "nonsweet_more"'), "analysis outcome metadata not found");
 check(js.includes('setExperimentData("analysis_food_quantity_bias"'), "participant analysis summary not found");
+check(js.includes('setExperimentData("analysis_mean_rt_ms"'), "mean RT summary not found");
 check((js.match(/experiment_data_[1-4]/g) || []).length >= 4, "four data chunks not found");
 check(js.includes("setJSEmbeddedData"), "new Qualtrics Embedded Data API not found");
 check(fields.includes("__js_experiment_complete"), "JavaScript Embedded Data prefix not found");
 check(fields.includes("__js_analysis_food_quantity_bias"), "analysis Embedded Data fields not found");
+check(fields.includes("__js_analysis_mean_rt_ms"), "mean RT Embedded Data field not found");
 for (const prefix of ["cb","cc"]) for (const item of items) check(fs.existsSync(path.join(root,"static","img",`${prefix}_${item}.jpeg`)), `missing ${prefix}_${item}.jpeg`);
 for (const name of ["lid_bg.jpg","cb_intro.jpg","cc_intro.jpg"]) check(fs.existsSync(path.join(root,"static","img",name)), `missing ${name}`);
 check(fs.readdirSync(path.join(root,"static","img")).length === 47, "static/img must contain exactly 47 files");

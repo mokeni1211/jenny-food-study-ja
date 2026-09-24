@@ -23,6 +23,7 @@ __js_analysis_bias_cb
 __js_analysis_bias_cc
 __js_analysis_food_quantity_bias
 __js_analysis_median_rt_ms
+__js_analysis_mean_rt_ms
 __js_analysis_mean_stimulus_duration_ms
 
 Qualtrics標準列のResponseIdをCrowdWorks完了コードとして使用します。

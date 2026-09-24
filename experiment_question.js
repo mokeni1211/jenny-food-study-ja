@@ -11,7 +11,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
 
   /* Change this one line after publishing the static/ directory. */
   var ASSET_BASE_URL = "https://mokeni1211.github.io/jenny-food-study-ja/static";
-  var STUDY_VERSION = "ccb-ja-qualtrics-1.3.0";
+  var STUDY_VERSION = "ccb-ja-qualtrics-1.3.1";
   var practiceItems = ["p1", "p2"];
   var mainItems = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"];
   var canonicalItemOrder = practiceItems.concat(mainItems);
@@ -268,6 +268,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
     setExperimentData("analysis_bias_cc", ccSweet - ccNonsweet);
     setExperimentData("analysis_food_quantity_bias", allSweet - allNonsweet);
     setExperimentData("analysis_median_rt_ms", median(main.map(function (trial) { return trial.rt; })));
+    setExperimentData("analysis_mean_rt_ms", mean(main.map(function (trial) { return trial.rt; })));
     setExperimentData("analysis_mean_stimulus_duration_ms", mean(main.map(function (trial) { return trial.stimulus_duration_ms; })));
   }
 
