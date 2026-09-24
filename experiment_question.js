@@ -11,10 +11,17 @@ Qualtrics.SurveyEngine.addOnload(function () {
 
   /* Change this one line after publishing the static/ directory. */
   var ASSET_BASE_URL = "https://mokeni1211.github.io/jenny-food-study-ja/static";
-  var STUDY_VERSION = "ccb-ja-qualtrics-1.1.0";
-  var itemOrder = ["p1","p2","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"];
-  var correctKeys = [74,70,74,70,70,74,74,70,70,74,74,74,70,74,70,74,70,70,74,70,74,70,74,70,74,70,70,74,74,70,70,74,74,74,70,74,70,74,70,70,74,70,74,70];
+  var STUDY_VERSION = "ccb-ja-qualtrics-1.2.0";
+  var practiceItems = ["p1", "p2"];
+  var mainItems = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"];
+  var canonicalItemOrder = practiceItems.concat(mainItems);
+  var correctKeysByBlock = {
+    cb: [74,70,74,70,70,74,74,70,70,74,74,74,70,74,70,74,70,70,74,70,74,70],
+    cc: [74,70,74,70,70,74,74,70,70,74,74,74,70,74,70,74,70,70,74,70,74,70]
+  };
   var blockOrder = Math.random() < 0.5 ? ["cb","cc"] : ["cc","cb"];
+  var itemOrders = {};
+  var correctKeyByStimulus = {};
   var root = document.getElementById("food-task-root");
   var trials = [];
   var blockIndex = 0;
@@ -22,6 +29,25 @@ Qualtrics.SurveyEngine.addOnload(function () {
   var keyHandler = null;
   var startedAt = new Date().toISOString();
   var style = document.createElement("style");
+
+  function shuffledCopy(items) {
+    var result = items.slice();
+    for (var i = result.length - 1; i > 0; i -= 1) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = result[i];
+      result[i] = result[j];
+      result[j] = temp;
+    }
+    return result;
+  }
+
+  ["cb", "cc"].forEach(function (block) {
+    /* Practice is fixed first; only the 20 main trials are randomized. */
+    itemOrders[block] = practiceItems.concat(shuffledCopy(mainItems));
+    canonicalItemOrder.forEach(function (item, index) {
+      correctKeyByStimulus[block + "_" + item] = correctKeysByBlock[block][index];
+    });
+  });
 
   style.textContent = [
     "#food-task-root{max-width:1000px;min-height:650px;margin:0 auto;text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Yu Gothic','Hiragino Kaku Gothic ProN',sans-serif;line-height:1.7}",
@@ -54,7 +80,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
   function imageNames() {
     var names = ["lid_bg.jpg", "cb_intro.jpg", "cc_intro.jpg"];
     ["cb", "cc"].forEach(function (prefix) {
-      itemOrder.forEach(function (item) { names.push(prefix + "_" + item + ".jpeg"); });
+      canonicalItemOrder.forEach(function (item) { names.push(prefix + "_" + item + ".jpeg"); });
     });
     return names;
   }
@@ -101,14 +127,14 @@ Qualtrics.SurveyEngine.addOnload(function () {
 
   function showStimulus() {
     var block = blockOrder[blockIndex];
-    var item = itemOrder[itemIndex];
+    var item = itemOrders[block][itemIndex];
     var stimulusId = block + "_" + item;
     var onset = performance.now();
     setHtml(promptHeader() + '<img class="ft-image" src="' + asset(stimulusId + ".jpeg") + '" alt="食品が載った2枚のお皿">');
-    window.setTimeout(function () { showChoice(onset, stimulusId); }, 400);
+    window.setTimeout(function () { showChoice(onset, stimulusId, item); }, 400);
   }
 
-  function showChoice(stimulusOnset, stimulusId) {
+  function showChoice(stimulusOnset, stimulusId, item) {
     var choiceOnset = performance.now();
     setHtml(promptHeader() + '<img class="ft-image" src="' + asset("lid_bg.jpg") + '" alt="ふたで隠された2枚のお皿">');
     keyHandler = function (event) {
@@ -125,14 +151,14 @@ Qualtrics.SurveyEngine.addOnload(function () {
         block_order: blockOrder.join("-"),
         bgstim: blockOrder[blockIndex],
         stimulus_id: stimulusId,
-        item_id: itemOrder[itemIndex],
+        item_id: item,
         key: key,
         key_code: keyCode,
-        correct_key_code: correctKeys[globalIndex],
-        correct: keyCode === correctKeys[globalIndex],
+        correct_key_code: correctKeyByStimulus[stimulusId],
+        correct: keyCode === correctKeyByStimulus[stimulusId],
         rt: Math.round(performance.now() - choiceOnset),
         stimulus_duration_ms: Math.round(choiceOnset - stimulusOnset),
-        test_part: "practice"
+        test_part: practiceItems.indexOf(item) !== -1 ? "practice" : "main"
       });
       itemIndex += 1;
       if (itemIndex < 22) {
@@ -167,7 +193,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
   }
 
   function finishTask() {
-    var correctCount = trials.filter(function (trial) { return trial.correct; }).length;
+    var correctCount = trials.filter(function (trial) { return trial.test_part === "main" && trial.correct; }).length;
     try {
       saveChunk("experiment_data_1", trials.slice(0, 11));
       saveChunk("experiment_data_2", trials.slice(11, 22));
