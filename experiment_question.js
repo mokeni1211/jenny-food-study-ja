@@ -11,13 +11,36 @@ Qualtrics.SurveyEngine.addOnload(function () {
 
   /* Change this one line after publishing the static/ directory. */
   var ASSET_BASE_URL = "https://mokeni1211.github.io/jenny-food-study-ja/static";
-  var STUDY_VERSION = "ccb-ja-qualtrics-1.2.0";
+  var STUDY_VERSION = "ccb-ja-qualtrics-1.3.0";
   var practiceItems = ["p1", "p2"];
   var mainItems = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"];
   var canonicalItemOrder = practiceItems.concat(mainItems);
   var correctKeysByBlock = {
     cb: [74,70,74,70,70,74,74,70,70,74,74,74,70,74,70,74,70,70,74,70,74,70],
     cc: [74,70,74,70,70,74,74,70,70,74,74,74,70,74,70,74,70,70,74,70,74,70]
+  };
+  /* Metadata from the original Study 1 analysis table. */
+  var mainTrialMetadata = {
+    "1":  { design: "Area",    ratio: 1.5,   sweet_more: false },
+    "2":  { design: "Density", ratio: 2,     sweet_more: true  },
+    "3":  { design: "Density", ratio: 1.083, sweet_more: true  },
+    "4":  { design: "Area",    ratio: 1.11,  sweet_more: false },
+    "5":  { design: "Density", ratio: 1.083, sweet_more: false },
+    "6":  { design: "Area",    ratio: 1.5,   sweet_more: true  },
+    "7":  { design: "Density", ratio: 1.11,  sweet_more: true  },
+    "8":  { design: "Area",    ratio: 1.25,  sweet_more: false },
+    "9":  { design: "Area",    ratio: 2,     sweet_more: false },
+    "10": { design: "Density", ratio: 1.11,  sweet_more: false },
+    "11": { design: "Density", ratio: 1.5,   sweet_more: true  },
+    "12": { design: "Area",    ratio: 1.083, sweet_more: false },
+    "13": { design: "Density", ratio: 1.25,  sweet_more: true  },
+    "14": { design: "Density", ratio: 2,     sweet_more: false },
+    "15": { design: "Area",    ratio: 1.11,  sweet_more: true  },
+    "16": { design: "Area",    ratio: 1.25,  sweet_more: true  },
+    "17": { design: "Density", ratio: 1.5,   sweet_more: false },
+    "18": { design: "Area",    ratio: 1.083, sweet_more: true  },
+    "19": { design: "Density", ratio: 1.25,  sweet_more: false },
+    "20": { design: "Area",    ratio: 2,     sweet_more: true  }
   };
   var blockOrder = Math.random() < 0.5 ? ["cb","cc"] : ["cc","cb"];
   var itemOrders = {};
@@ -145,6 +168,12 @@ Qualtrics.SurveyEngine.addOnload(function () {
       keyHandler = null;
       var keyCode = key === "f" ? 70 : 74;
       var globalIndex = blockIndex * 22 + itemIndex;
+      var isPractice = practiceItems.indexOf(item) !== -1;
+      var metadata = isPractice ? {
+        design: "Practice",
+        ratio: 1.5,
+        sweet_more: item === "p2"
+      } : mainTrialMetadata[item];
       trials.push({
         trial_index: globalIndex + 1,
         block_number: blockIndex + 1,
@@ -158,7 +187,10 @@ Qualtrics.SurveyEngine.addOnload(function () {
         correct: keyCode === correctKeyByStimulus[stimulusId],
         rt: Math.round(performance.now() - choiceOnset),
         stimulus_duration_ms: Math.round(choiceOnset - stimulusOnset),
-        test_part: practiceItems.indexOf(item) !== -1 ? "practice" : "main"
+        test_part: isPractice ? "practice" : "main",
+        trial_design: metadata.design,
+        numerical_ratio: metadata.ratio,
+        numerosity_outcome: metadata.sweet_more ? "sweet_more" : "nonsweet_more"
       });
       itemIndex += 1;
       if (itemIndex < 22) {
@@ -192,6 +224,53 @@ Qualtrics.SurveyEngine.addOnload(function () {
     setExperimentData(name, JSON.stringify(value));
   }
 
+  function mean(values) {
+    if (!values.length) return null;
+    return values.reduce(function (sum, value) { return sum + value; }, 0) / values.length;
+  }
+
+  function median(values) {
+    if (!values.length) return null;
+    var sorted = values.slice().sort(function (a, b) { return a - b; });
+    var middle = Math.floor(sorted.length / 2);
+    return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+  }
+
+  function accuracyFor(source, block, outcome) {
+    return mean(source.filter(function (trial) {
+      return trial.bgstim === block && trial.numerosity_outcome === outcome;
+    }).map(function (trial) { return trial.correct ? 1 : 0; }));
+  }
+
+  function saveAnalysisSummary() {
+    var main = trials.filter(function (trial) { return trial.test_part === "main"; });
+    var practice = trials.filter(function (trial) { return trial.test_part === "practice"; });
+    var cbSweet = accuracyFor(main, "cb", "sweet_more");
+    var cbNonsweet = accuracyFor(main, "cb", "nonsweet_more");
+    var ccSweet = accuracyFor(main, "cc", "sweet_more");
+    var ccNonsweet = accuracyFor(main, "cc", "nonsweet_more");
+    var allSweet = mean(main.filter(function (trial) {
+      return trial.numerosity_outcome === "sweet_more";
+    }).map(function (trial) { return trial.correct ? 1 : 0; }));
+    var allNonsweet = mean(main.filter(function (trial) {
+      return trial.numerosity_outcome === "nonsweet_more";
+    }).map(function (trial) { return trial.correct ? 1 : 0; }));
+
+    setExperimentData("analysis_main_trial_count", main.length);
+    setExperimentData("analysis_practice_trial_count", practice.length);
+    setExperimentData("analysis_practice_correct_count", practice.filter(function (trial) { return trial.correct; }).length);
+    setExperimentData("analysis_accuracy_overall", mean(main.map(function (trial) { return trial.correct ? 1 : 0; })));
+    setExperimentData("analysis_accuracy_cb_sweet_more", cbSweet);
+    setExperimentData("analysis_accuracy_cb_nonsweet_more", cbNonsweet);
+    setExperimentData("analysis_accuracy_cc_sweet_more", ccSweet);
+    setExperimentData("analysis_accuracy_cc_nonsweet_more", ccNonsweet);
+    setExperimentData("analysis_bias_cb", cbSweet - cbNonsweet);
+    setExperimentData("analysis_bias_cc", ccSweet - ccNonsweet);
+    setExperimentData("analysis_food_quantity_bias", allSweet - allNonsweet);
+    setExperimentData("analysis_median_rt_ms", median(main.map(function (trial) { return trial.rt; })));
+    setExperimentData("analysis_mean_stimulus_duration_ms", mean(main.map(function (trial) { return trial.stimulus_duration_ms; })));
+  }
+
   function finishTask() {
     var correctCount = trials.filter(function (trial) { return trial.test_part === "main" && trial.correct; }).length;
     try {
@@ -205,6 +284,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
       setExperimentData("experiment_correct_count", String(correctCount));
       setExperimentData("experiment_started_at", startedAt);
       setExperimentData("experiment_finished_at", new Date().toISOString());
+      saveAnalysisSummary();
       setHtml('<div class="ft-page" style="text-align:center"><h2>課題が終了しました</h2><p>回答をQualtricsに反映しています。画面が自動で切り替わるまで、そのままお待ちください。</p></div>');
       /* Give JFE a full event-loop turn before submitting this page. */
       window.setTimeout(function () { q.clickNextButton(); }, 1500);
