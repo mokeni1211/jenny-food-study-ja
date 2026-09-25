@@ -11,7 +11,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
 
   /* Change this one line after publishing the static/ directory. */
   var ASSET_BASE_URL = "https://mokeni1211.github.io/jenny-food-study-ja/static";
-  var STUDY_VERSION = "ccb-ja-qualtrics-1.4.0";
+  var STUDY_VERSION = "ccb-ja-qualtrics-1.5.0";
   var practiceItems = ["p1", "p2"];
   var mainItems = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"];
   var canonicalItemOrder = practiceItems.concat(mainItems);
@@ -44,10 +44,6 @@ Qualtrics.SurveyEngine.addOnload(function () {
   };
   var blockOrder = Math.random() < 0.5 ? ["cb","cc"] : ["cc","cb"];
   var spatialList = Math.random() < 0.5 ? "A" : "B";
-  var listASwappedMainItems = {
-    "1": true, "2": true, "3": true, "4": true, "5": true,
-    "6": true, "7": true, "8": true, "9": true, "13": true
-  };
   var itemOrders = {};
   var correctKeyByStimulus = {};
   var preloadedImages = {};
@@ -114,12 +110,9 @@ Qualtrics.SurveyEngine.addOnload(function () {
     return names;
   }
 
-  function usesSwappedLayout(item) {
-    var listAValue;
-    if (item === "p1") listAValue = false;
-    else if (item === "p2") listAValue = true;
-    else listAValue = Boolean(listASwappedMainItems[item]);
-    return spatialList === "A" ? listAValue : !listAValue;
+  function usesSwappedLayout() {
+    /* Keep food position constant within a participant. */
+    return spatialList === "B";
   }
 
   function drawStimulus(stimulusId, swapped) {
@@ -184,7 +177,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
     var block = blockOrder[blockIndex];
     var item = itemOrders[block][itemIndex];
     var stimulusId = block + "_" + item;
-    var swapped = usesSwappedLayout(item);
+    var swapped = usesSwappedLayout();
     setHtml(promptHeader() + '<canvas id="ft-stimulus-canvas" class="ft-image" role="img" aria-label="食品が載った2枚のお皿"></canvas>');
     drawStimulus(stimulusId, swapped);
     var onset = performance.now();

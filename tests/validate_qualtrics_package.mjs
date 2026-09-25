@@ -30,6 +30,7 @@ check(js.includes("practiceItems.concat(shuffledCopy(mainItems))"), "main-trial 
 check(js.includes('test_part: isPractice ? "practice" : "main"'), "practice/main labels not found");
 check(js.includes("correctKeyByStimulus[stimulusId]"), "stimulus-keyed answer lookup not found");
 check(js.includes('var spatialList = Math.random() < 0.5 ? "A" : "B"'), "spatial list randomization not found");
+check(js.includes('return spatialList === "B"'), "between-participant fixed spatial layout not found");
 check(js.includes('spatial_layout: swapped ? "swapped" : "original"'), "spatial layout recording not found");
 check(js.includes("displayedCorrectKey = swapped ?"), "swapped correct-key handling not found");
 check(js.includes("Swap the two plate halves without mirroring"), "non-mirrored plate swap not found");
@@ -51,4 +52,4 @@ if (failures.length) {
   failures.forEach(x => console.error(`- ${x}`));
   process.exit(1);
 }
-console.log("PASS: Qualtrics package preserves 44 trials, balanced A/B spatial layouts, non-mirrored plate swaps, analysis metadata and summaries, stimulus-keyed answers, fixed-first practice, randomized main trials, 400 ms timing, F/J responses, both block orders, four data chunks, and all 47 assets.");
+console.log("PASS: Qualtrics package preserves 44 trials, participant-fixed A/B food positions, non-mirrored plate swaps, analysis metadata and summaries, stimulus-keyed answers, fixed-first practice, randomized main trials, 400 ms timing, F/J responses, both block orders, four data chunks, and all 47 assets.");
