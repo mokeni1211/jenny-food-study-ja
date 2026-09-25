@@ -23,18 +23,23 @@ const items = strings(js, "canonicalItemOrder").length ? strings(js, "canonicalI
 check(keyArrays.length === 2 && keyArrays.every(x => x.length === 22), "expected 22 answer keys for each block");
 check(JSON.stringify(keyArrays.flat()) === JSON.stringify(originalKeys), "stimulus answer keys differ from original first 44 trials");
 check(items.length === 22, `expected 22 items per block, found ${items.length}`);
-check(/showChoice\(onset, stimulusId, item\); \}, 400\)/.test(js), "400 ms presentation not found");
+check(/showChoice\(onset, stimulusId, item, swapped\); \}, 400\)/.test(js), "400 ms presentation not found");
 check(/key !== "f" && key !== "j"/.test(js), "F/J restriction not found");
 check(/\["cb","cc"\].*\["cc","cb"\]/.test(js), "both block orders not found");
 check(js.includes("practiceItems.concat(shuffledCopy(mainItems))"), "main-trial randomization with fixed practice not found");
 check(js.includes('test_part: isPractice ? "practice" : "main"'), "practice/main labels not found");
 check(js.includes("correctKeyByStimulus[stimulusId]"), "stimulus-keyed answer lookup not found");
+check(js.includes('var spatialList = Math.random() < 0.5 ? "A" : "B"'), "spatial list randomization not found");
+check(js.includes('spatial_layout: swapped ? "swapped" : "original"'), "spatial layout recording not found");
+check(js.includes("displayedCorrectKey = swapped ?"), "swapped correct-key handling not found");
+check(js.includes("Swap the two plate halves without mirroring"), "non-mirrored plate swap not found");
 check(js.includes('numerosity_outcome: metadata.sweet_more ? "sweet_more" : "nonsweet_more"'), "analysis outcome metadata not found");
 check(js.includes('setExperimentData("analysis_food_quantity_bias"'), "participant analysis summary not found");
 check(js.includes('setExperimentData("analysis_mean_rt_ms"'), "mean RT summary not found");
 check((js.match(/experiment_data_[1-4]/g) || []).length >= 4, "four data chunks not found");
 check(js.includes("setJSEmbeddedData"), "new Qualtrics Embedded Data API not found");
 check(fields.includes("__js_experiment_complete"), "JavaScript Embedded Data prefix not found");
+check(fields.includes("__js_experiment_spatial_list"), "spatial list Embedded Data field not found");
 check(fields.includes("__js_analysis_food_quantity_bias"), "analysis Embedded Data fields not found");
 check(fields.includes("__js_analysis_mean_rt_ms"), "mean RT Embedded Data field not found");
 for (const prefix of ["cb","cc"]) for (const item of items) check(fs.existsSync(path.join(root,"static","img",`${prefix}_${item}.jpeg`)), `missing ${prefix}_${item}.jpeg`);
@@ -46,4 +51,4 @@ if (failures.length) {
   failures.forEach(x => console.error(`- ${x}`));
   process.exit(1);
 }
-console.log("PASS: Qualtrics package preserves 44 trials, analysis metadata and summaries, stimulus-keyed answers, fixed-first practice, randomized main trials, 400 ms timing, F/J responses, both block orders, four data chunks, and all 47 assets.");
+console.log("PASS: Qualtrics package preserves 44 trials, balanced A/B spatial layouts, non-mirrored plate swaps, analysis metadata and summaries, stimulus-keyed answers, fixed-first practice, randomized main trials, 400 ms timing, F/J responses, both block orders, four data chunks, and all 47 assets.");

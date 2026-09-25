@@ -8,6 +8,7 @@ __js_experiment_data_4
 __js_experiment_complete
 __js_experiment_version
 __js_experiment_block_order
+__js_experiment_spatial_list
 __js_experiment_correct_count
 __js_experiment_started_at
 __js_experiment_finished_at

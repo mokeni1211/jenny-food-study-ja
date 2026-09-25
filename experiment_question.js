@@ -11,7 +11,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
 
   /* Change this one line after publishing the static/ directory. */
   var ASSET_BASE_URL = "https://mokeni1211.github.io/jenny-food-study-ja/static";
-  var STUDY_VERSION = "ccb-ja-qualtrics-1.3.1";
+  var STUDY_VERSION = "ccb-ja-qualtrics-1.4.0";
   var practiceItems = ["p1", "p2"];
   var mainItems = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"];
   var canonicalItemOrder = practiceItems.concat(mainItems);
@@ -43,8 +43,14 @@ Qualtrics.SurveyEngine.addOnload(function () {
     "20": { design: "Area",    ratio: 2,     sweet_more: true  }
   };
   var blockOrder = Math.random() < 0.5 ? ["cb","cc"] : ["cc","cb"];
+  var spatialList = Math.random() < 0.5 ? "A" : "B";
+  var listASwappedMainItems = {
+    "1": true, "2": true, "3": true, "4": true, "5": true,
+    "6": true, "7": true, "8": true, "9": true, "13": true
+  };
   var itemOrders = {};
   var correctKeyByStimulus = {};
+  var preloadedImages = {};
   var root = document.getElementById("food-task-root");
   var trials = [];
   var blockIndex = 0;
@@ -108,6 +114,31 @@ Qualtrics.SurveyEngine.addOnload(function () {
     return names;
   }
 
+  function usesSwappedLayout(item) {
+    var listAValue;
+    if (item === "p1") listAValue = false;
+    else if (item === "p2") listAValue = true;
+    else listAValue = Boolean(listASwappedMainItems[item]);
+    return spatialList === "A" ? listAValue : !listAValue;
+  }
+
+  function drawStimulus(stimulusId, swapped) {
+    var img = preloadedImages[stimulusId + ".jpeg"];
+    var canvas = document.getElementById("ft-stimulus-canvas");
+    var context = canvas.getContext("2d");
+    var half = Math.floor(img.naturalWidth / 2);
+    var rightWidth = img.naturalWidth - half;
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    if (!swapped) {
+      context.drawImage(img, 0, 0);
+      return;
+    }
+    /* Swap the two plate halves without mirroring either food image. */
+    context.drawImage(img, half, 0, rightWidth, img.naturalHeight, 0, 0, rightWidth, img.naturalHeight);
+    context.drawImage(img, 0, 0, half, img.naturalHeight, rightWidth, 0, half, img.naturalHeight);
+  }
+
   function preloadImages() {
     var names = imageNames();
     var loaded = 0;
@@ -117,6 +148,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
         var img = new Image();
         img.onload = function () {
           loaded += 1;
+          preloadedImages[name] = img;
           setHtml('<p class="ft-loading">画像を読み込んでいます（' + loaded + '/' + names.length + '）…</p>');
           resolve();
         };
@@ -152,12 +184,14 @@ Qualtrics.SurveyEngine.addOnload(function () {
     var block = blockOrder[blockIndex];
     var item = itemOrders[block][itemIndex];
     var stimulusId = block + "_" + item;
+    var swapped = usesSwappedLayout(item);
+    setHtml(promptHeader() + '<canvas id="ft-stimulus-canvas" class="ft-image" role="img" aria-label="食品が載った2枚のお皿"></canvas>');
+    drawStimulus(stimulusId, swapped);
     var onset = performance.now();
-    setHtml(promptHeader() + '<img class="ft-image" src="' + asset(stimulusId + ".jpeg") + '" alt="食品が載った2枚のお皿">');
-    window.setTimeout(function () { showChoice(onset, stimulusId, item); }, 400);
+    window.setTimeout(function () { showChoice(onset, stimulusId, item, swapped); }, 400);
   }
 
-  function showChoice(stimulusOnset, stimulusId, item) {
+  function showChoice(stimulusOnset, stimulusId, item, swapped) {
     var choiceOnset = performance.now();
     setHtml(promptHeader() + '<img class="ft-image" src="' + asset("lid_bg.jpg") + '" alt="ふたで隠された2枚のお皿">');
     keyHandler = function (event) {
@@ -174,6 +208,8 @@ Qualtrics.SurveyEngine.addOnload(function () {
         ratio: 1.5,
         sweet_more: item === "p2"
       } : mainTrialMetadata[item];
+      var originalCorrectKey = correctKeyByStimulus[stimulusId];
+      var displayedCorrectKey = swapped ? (originalCorrectKey === 70 ? 74 : 70) : originalCorrectKey;
       trials.push({
         trial_index: globalIndex + 1,
         block_number: blockIndex + 1,
@@ -183,14 +219,19 @@ Qualtrics.SurveyEngine.addOnload(function () {
         item_id: item,
         key: key,
         key_code: keyCode,
-        correct_key_code: correctKeyByStimulus[stimulusId],
-        correct: keyCode === correctKeyByStimulus[stimulusId],
+        correct_key_code: displayedCorrectKey,
+        correct: keyCode === displayedCorrectKey,
         rt: Math.round(performance.now() - choiceOnset),
         stimulus_duration_ms: Math.round(choiceOnset - stimulusOnset),
         test_part: isPractice ? "practice" : "main",
         trial_design: metadata.design,
         numerical_ratio: metadata.ratio,
-        numerosity_outcome: metadata.sweet_more ? "sweet_more" : "nonsweet_more"
+        numerosity_outcome: metadata.sweet_more ? "sweet_more" : "nonsweet_more",
+        spatial_list: spatialList,
+        spatial_layout: swapped ? "swapped" : "original",
+        sweet_side: swapped ? "right" : "left",
+        correct_side: displayedCorrectKey === 70 ? "left" : "right",
+        response_side: keyCode === 70 ? "left" : "right"
       });
       itemIndex += 1;
       if (itemIndex < 22) {
@@ -282,6 +323,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
       setExperimentData("experiment_complete", "1");
       setExperimentData("experiment_version", STUDY_VERSION);
       setExperimentData("experiment_block_order", blockOrder.join("-"));
+      setExperimentData("experiment_spatial_list", spatialList);
       setExperimentData("experiment_correct_count", String(correctCount));
       setExperimentData("experiment_started_at", startedAt);
       setExperimentData("experiment_finished_at", new Date().toISOString());

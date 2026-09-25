@@ -7,7 +7,7 @@
 | `static/img/` 47ファイル | GitHub Pagesまたは名古屋大学Webホスティングなど、HTTPSで一般公開できる静的領域 |
 | `experiment_question.html` | QualtricsのDescriptive Text質問本文（HTML表示） |
 | `experiment_question.js` | 同じ質問のQuestion options → Add JavaScript |
-| `embedded_data_fields.txt`記載の24項目 | Qualtrics Survey Flow最上部のEmbedded Data |
+| `embedded_data_fields.txt`記載の25項目 | Qualtrics Survey Flow最上部のEmbedded Data |
 | 同意・通常質問 | Qualtricsの標準質問として作成 |
 | `end_of_survey.html` | QualtricsのCustom End of Survey Message |
 
@@ -42,7 +42,7 @@ var ASSET_BASE_URL = "https://example.ac.jp/food-study";
 
 Survey Flow最上部にEmbedded Data要素を追加し、`embedded_data_fields.txt`の全項目を登録します。値は空欄のままです。この要素を実験ブロックより前に置きます。
 
-**重要（Qualtricsの新しい回答画面）：** フィールド名の`__js_`は省略しないでください。JavaScriptは`setJSEmbeddedData()`を使い、例えば`experiment_complete`をSurvey Flowの`__js_experiment_complete`に保存します。従来の接頭辞のない`experiment_...`の10項目は`__js_experiment_...`へ置き換え、さらに`__js_analysis_...`の14項目を追加してください。
+**重要（Qualtricsの新しい回答画面）：** フィールド名の`__js_`は省略しないでください。JavaScriptは`setJSEmbeddedData()`を使い、例えば`experiment_complete`をSurvey Flowの`__js_experiment_complete`に保存します。従来の接頭辞のない`experiment_...`の10項目は`__js_experiment_...`へ置き換え、`__js_experiment_spatial_list`と1項目、さらに`__js_analysis_...`の14項目を追加してください。
 
 ## 3. 通常質問を作る
 
@@ -83,6 +83,10 @@ __js_experiment_data_4
 
 各ブロックの`p1`と`p2`は練習試行として必ず最初にこの順で提示されます。続く`1`〜`20`の本試行は、ブロックごと、参加者ごとに無作為化されます。`test_part` は練習で`practice`、本試行で`main`です。各本試行には原分析表と対応する`trial_design`、`numerical_ratio`、`numerosity_outcome`も保存されます。`__js_experiment_correct_count`は40本の本試行のみの正答数です。
 
+食品の左右は参加者ごとに刺激リストAまたはBを割り当ててカウンターバランスします。ブラウザ上で元画像の左右半分を入れ替えるため、食品自体やクッキーの文字は鏡像反転しません。各ブロックで本試行10本が原配置、10本が左右交換配置です。各数量比で原配置2本・交換2本、甘味多数と非甘味多数でそれぞれ原配置5本・交換5本、AreaとDensityでそれぞれ原配置5本・交換5本になります。リストBはAの配置をすべて反転します。
+
+試行データには`spatial_list`、`spatial_layout`、`sweet_side`、`correct_side`、`response_side`を保存します。左右交換試行では正答キーも自動的にF↔Jで反転します。
+
 ### 参加者別の解析用要約列
 
 Qualtricsの1回答（1行）に、以下の短い解析用列が自動的に追加されます。正答率とバイアスは練習を除く40本試行から算出します。
@@ -115,6 +119,8 @@ Qualtricsの1回答（1行）に、以下の短い解析用列が自動的に追
 - cb→ccとcc→cbの両方が発生する。
 - 各ブロックで`p1`、`p2`が必ず最初に提示され、`1`〜`20`の順番が参加者ごとに変わる。
 - 刺激順を変えても、刺激IDと正答キーの対応が変わらない。
+- 刺激リストA/Bで、各ブロックの原配置と左右交換配置が10本ずつになる。
+- 左右交換後も食品や文字が鏡像反転せず、正答キーのみ適切に反転する。
 - 各刺激表示時間が概ね400 msである。
 - F以外・J以外のキーでは進まない。
 - スマートフォン・タブレットでは開始できない。
