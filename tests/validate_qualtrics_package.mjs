@@ -53,6 +53,8 @@ check(js.includes("showAlienIntro(0)"), "experiment does not start from the alie
 check(js.includes("宇宙人") && js.includes("地球の食べ物"), "Japanese alien introduction wording not found");
 check(js.includes('asset("alien_10.png")'), "post-task stars screen not found");
 check(js.includes('id="ft-finish"'), "post-task stars continue button not found");
+check(js.includes("max-width:96vw;max-height:82vh"), "viewport-responsive task image sizing not found");
+check(js.includes("max-width:94vw;max-height:68vh"), "viewport-responsive introduction image sizing not found");
 check(fs.readdirSync(path.join(root,"static","img")).length === 56, "static/img must contain exactly 56 files");
 
 if (failures.length) {

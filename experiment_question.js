@@ -11,7 +11,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
 
   /* Change this one line after publishing the static/ directory. */
   var ASSET_BASE_URL = "https://mokeni1211.github.io/jenny-food-study-ja/static";
-  var STUDY_VERSION = "ccb-ja-qualtrics-1.6.1";
+  var STUDY_VERSION = "ccb-ja-qualtrics-1.6.2";
   var practiceItems = ["p1", "p2"];
   var mainItems = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"];
   var canonicalItemOrder = practiceItems.concat(mainItems);
@@ -75,11 +75,11 @@ Qualtrics.SurveyEngine.addOnload(function () {
   });
 
   style.textContent = [
-    "#food-task-root{max-width:1000px;min-height:650px;margin:0 auto;text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Yu Gothic','Hiragino Kaku Gothic ProN',sans-serif;line-height:1.7}",
-    "#food-task-root .ft-page{max-width:850px;margin:30px auto;text-align:left}",
+    "#food-task-root{position:relative;left:50%;transform:translateX(-50%);width:96vw;max-width:none;min-height:650px;margin:0;text-align:center;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Yu Gothic','Hiragino Kaku Gothic ProN',sans-serif;line-height:1.7}",
+    "#food-task-root .ft-page{width:94vw;max-width:1100px;margin:20px auto;text-align:left;box-sizing:border-box}",
     "#food-task-root .ft-keys{display:flex;justify-content:space-between;font-size:1.2rem;font-weight:700;margin:0 5% 12px}",
-    "#food-task-root .ft-image{display:block;max-width:92%;max-height:68vh;margin:0 auto}",
-    "#food-task-root .ft-intro-image{display:block;max-width:88%;max-height:52vh;margin:10px auto 20px}",
+    "#food-task-root .ft-image{display:block;width:auto;height:auto;max-width:96vw;max-height:82vh;margin:0 auto;object-fit:contain}",
+    "#food-task-root .ft-intro-image{display:block;width:auto;height:auto;max-width:94vw;max-height:68vh;margin:8px auto 14px;object-fit:contain}",
     "#food-task-root .ft-nav{display:flex;justify-content:center;gap:18px;align-items:center;margin-top:18px}",
     "#food-task-root .ft-button{display:inline-block;margin:25px;padding:12px 30px;font-size:1.05rem;cursor:pointer}",
     "#food-task-root .ft-warning{padding:16px;border:2px solid #a00;background:#fff4f4;text-align:left}",
