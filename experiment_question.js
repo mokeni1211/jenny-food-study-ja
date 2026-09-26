@@ -11,7 +11,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
 
   /* Change this one line after publishing the static/ directory. */
   var ASSET_BASE_URL = "https://mokeni1211.github.io/jenny-food-study-ja/static";
-  var STUDY_VERSION = "ccb-ja-qualtrics-1.5.0";
+  var STUDY_VERSION = "ccb-ja-qualtrics-1.5.1";
   var practiceItems = ["p1", "p2"];
   var mainItems = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"];
   var canonicalItemOrder = practiceItems.concat(mainItems);
@@ -167,9 +167,9 @@ Qualtrics.SurveyEngine.addOnload(function () {
     var block = blockOrder[blockIndex];
     var foods = block === "cb" ? "カップケーキとブロッコリー" : "クッキーとクラッカー";
     setHtml('<div class="ft-page" style="text-align:center"><h2>ブロック ' + (blockIndex + 1) + ' / 2</h2>' +
-      '<p>このブロックでは、' + foods + 'が表示されます。<br>2枚のお皿のうち、食べ物の数が多い方を選んでください。</p>' +
+      '<p>このブロックでは、' + foods + 'が表示されます。<br>２枚のお皿のうち、食べ物の数が多い方を選んでください。</p>' +
       '<img class="ft-image" src="' + asset(block + "_intro.jpg") + '" alt="このブロックで使用する食品">' +
-      '<button type="button" id="ft-block-start" class="ft-button">このブロックを始める</button></div>');
+      '<button type="button" id="ft-block-start" class="ft-button">ここをクリックして、問題を始める。クリックとともに、２枚のお皿が一瞬で表示されます。</button></div>');
     document.getElementById("ft-block-start").onclick = showStimulus;
   }
 
@@ -339,11 +339,11 @@ Qualtrics.SurveyEngine.addOnload(function () {
     setHtml('<div class="ft-page"><div class="ft-warning"><strong>この調査にはPCと物理キーボードが必要です。</strong><br>スマートフォンやタブレットでは参加できません。PCから調査URLを開き直してください。</div></div>');
     return;
   }
-  setHtml('<div class="ft-page"><h2>数の判断課題</h2><p>2枚のお皿に食べ物が短時間表示され、その後すぐにふたで隠れます。食べ物の数が多い方を選んでください。</p>' +
+  setHtml('<div class="ft-page"><h2>食べ物の数を判断する課題</h2><p>２枚のお皿に食べ物が一瞬（0.4秒）表示され、その後すぐに蓋で隠れます。食べ物の数が多い方を選んでください。</p>' +
     '<ul><li>左のお皿を選ぶ：Fキー</li><li>右のお皿を選ぶ：Jキー</li></ul>' +
-    '<p>画像は400ミリ秒だけ表示されます。数える時間はありませんので、直感で答えてください。本試行中に正解・不正解は表示されません。</p>' +
+    '<p>また、キーを押すと同時に、次の問題が始まります。数える時間はありませんので、直感でお答えください。課題の途中では、正解・不正解は表示されません。</p>' +
     '<p>ブラウザを最大化し、左手の人差し指をFキー、右手の人差し指をJキーに置いてください。</p>' +
-    '<p style="text-align:center"><button type="button" id="ft-start" class="ft-button">画像を読み込んで開始する</button></p></div>');
+    '<p style="text-align:center"><button type="button" id="ft-start" class="ft-button">ここをクリックして、画像を読み込んで開始する</button></p></div>');
   document.getElementById("ft-start").onclick = beginLoading;
 });
 
