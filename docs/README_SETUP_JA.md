@@ -4,7 +4,7 @@
 
 | ファイル／内容 | 設置場所 |
 |---|---|
-| `static/img/` 47ファイル | GitHub Pagesまたは名古屋大学Webホスティングなど、HTTPSで一般公開できる静的領域 |
+| `static/img/` 55ファイル | GitHub Pagesまたは名古屋大学Webホスティングなど、HTTPSで一般公開できる静的領域 |
 | `experiment_question.html` | QualtricsのDescriptive Text質問本文（HTML表示） |
 | `experiment_question.js` | 同じ質問のQuestion options → Add JavaScript |
 | `embedded_data_fields.txt`記載の25項目 | Qualtrics Survey Flow最上部のEmbedded Data |
@@ -36,7 +36,7 @@ var ASSET_BASE_URL = "https://example.ac.jp/food-study";
 
 ### 名古屋大学Webホスティングを使う場合
 
-公開ディレクトリ内に`food-study/img/`を作り、47画像をアップロードします。PHPやデータベースは不要です。IPアクセスログの保存方針は大学へ確認してください。
+公開ディレクトリ内に`food-study/img/`を作り、55画像をアップロードします。PHPやデータベースは不要です。IPアクセスログの保存方針は大学へ確認してください。
 
 ## 2. Survey Flowを作る
 
@@ -58,7 +58,9 @@ Survey Flow最上部にEmbedded Data要素を追加し、`embedded_data_fields.t
 6. `ASSET_BASE_URL`を公開した画像フォルダの親URLへ変更する。
 7. この質問の前後にPage Breakを置き、ページ内に他の質問を置かない。
 
-この実装はjsPsychを外部から読み込みません。Qualtrics上で44試行だけを直接動かすため、外部JavaScriptのCSP問題を避けています。
+この実装はjsPsychを外部から読み込みません。Qualtrics上で導入画面と44試行を直接動かすため、外部JavaScriptのCSP問題を避けています。
+
+実験質問を開くと、元の`ccb.html`をもとにした宇宙人の導入が7画面表示されます。内容は、宇宙人とのゲーム、地球の食べ物の紹介、数の多い皿を選ぶ課題、400 msの短時間提示、F/Jキー操作、直感で答えること、分からない場合は推測してよいことです。現在の実装は試行ごとの正誤フィードバックや星の報酬を提示しないため、星を獲得できるという説明は入れていません。
 
 ## 5. 終了画面を設定する
 
@@ -113,6 +115,7 @@ Qualtricsの1回答（1行）に、以下の短い解析用列が自動的に追
 ## 7. 必須テスト
 
 - Previewではなく匿名リンクでもテスト回答を1件送信する。
+- 宇宙人の導入7画面が最初に表示され、画像、前へ／次へボタン、F/J説明が正しく動く。
 - 44試行が4つのJSON列に11件ずつ保存される。
 - `__js_experiment_complete=1`が保存される。
 - `ResponseId`が終了画面に表示され、CSVにも同じ値がある。

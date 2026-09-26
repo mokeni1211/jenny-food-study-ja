@@ -45,11 +45,17 @@ check(fields.includes("__js_analysis_food_quantity_bias"), "analysis Embedded Da
 check(fields.includes("__js_analysis_mean_rt_ms"), "mean RT Embedded Data field not found");
 for (const prefix of ["cb","cc"]) for (const item of items) check(fs.existsSync(path.join(root,"static","img",`${prefix}_${item}.jpeg`)), `missing ${prefix}_${item}.jpeg`);
 for (const name of ["lid_bg.jpg","cb_intro.jpg","cc_intro.jpg"]) check(fs.existsSync(path.join(root,"static","img",name)), `missing ${name}`);
-check(fs.readdirSync(path.join(root,"static","img")).length === 47, "static/img must contain exactly 47 files");
+const introAssets = ["alien_1.png","alien_8.png","intro_3.gif","intro_5.gif","instruction_keys_ja.svg","alien_3.png","alien_5.png","alien_7.png"];
+for (const name of introAssets) check(fs.existsSync(path.join(root,"static","img",name)), `missing introduction asset ${name}`);
+check(js.includes("function showAlienIntro(pageIndex)"), "alien introduction screens not found");
+check(js.includes("function showTaskInstructions()"), "task instructions after introduction not found");
+check(js.includes("showAlienIntro(0)"), "experiment does not start from the alien introduction");
+check(js.includes("宇宙人") && js.includes("地球の食べ物"), "Japanese alien introduction wording not found");
+check(fs.readdirSync(path.join(root,"static","img")).length === 55, "static/img must contain exactly 55 files");
 
 if (failures.length) {
   console.error(`FAILED (${failures.length})`);
   failures.forEach(x => console.error(`- ${x}`));
   process.exit(1);
 }
-console.log("PASS: Qualtrics package preserves 44 trials, participant-fixed A/B food positions, non-mirrored plate swaps, analysis metadata and summaries, stimulus-keyed answers, fixed-first practice, randomized main trials, 400 ms timing, F/J responses, both block orders, four data chunks, and all 47 assets.");
+console.log("PASS: Qualtrics package includes the seven-page Japanese alien introduction and all 55 assets, and preserves 44 trials, participant-fixed A/B food positions, non-mirrored plate swaps, analysis metadata and summaries, stimulus-keyed answers, fixed-first practice, randomized main trials, 400 ms timing, F/J responses, both block orders, and four data chunks.");

@@ -11,7 +11,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
 
   /* Change this one line after publishing the static/ directory. */
   var ASSET_BASE_URL = "https://mokeni1211.github.io/jenny-food-study-ja/static";
-  var STUDY_VERSION = "ccb-ja-qualtrics-1.5.1";
+  var STUDY_VERSION = "ccb-ja-qualtrics-1.6.0";
   var practiceItems = ["p1", "p2"];
   var mainItems = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"];
   var canonicalItemOrder = practiceItems.concat(mainItems);
@@ -79,6 +79,8 @@ Qualtrics.SurveyEngine.addOnload(function () {
     "#food-task-root .ft-page{max-width:850px;margin:30px auto;text-align:left}",
     "#food-task-root .ft-keys{display:flex;justify-content:space-between;font-size:1.2rem;font-weight:700;margin:0 5% 12px}",
     "#food-task-root .ft-image{display:block;max-width:92%;max-height:68vh;margin:0 auto}",
+    "#food-task-root .ft-intro-image{display:block;max-width:88%;max-height:52vh;margin:10px auto 20px}",
+    "#food-task-root .ft-nav{display:flex;justify-content:center;gap:18px;align-items:center;margin-top:18px}",
     "#food-task-root .ft-button{display:inline-block;margin:25px;padding:12px 30px;font-size:1.05rem;cursor:pointer}",
     "#food-task-root .ft-warning{padding:16px;border:2px solid #a00;background:#fff4f4;text-align:left}",
     "#food-task-root .ft-loading{margin-top:120px;font-size:1.15rem}"
@@ -103,11 +105,82 @@ Qualtrics.SurveyEngine.addOnload(function () {
   }
 
   function imageNames() {
-    var names = ["lid_bg.jpg", "cb_intro.jpg", "cc_intro.jpg"];
+    var names = [
+      "lid_bg.jpg", "cb_intro.jpg", "cc_intro.jpg",
+      "alien_1.png", "alien_8.png", "intro_3.gif", "intro_5.gif",
+      "instruction_keys_ja.svg", "alien_3.png", "alien_5.png", "alien_7.png"
+    ];
     ["cb", "cc"].forEach(function (prefix) {
       canonicalItemOrder.forEach(function (item) { names.push(prefix + "_" + item + ".jpeg"); });
     });
     return names;
+  }
+
+  function introPages() {
+    return [
+      {
+        image: "alien_1.png",
+        alt: "宇宙人の友達",
+        text: "これから、別の星から来た宇宙人の友達と一緒に、食べ物の数を判断するゲームを行います。"
+      },
+      {
+        image: "alien_8.png",
+        alt: "地球の食べ物に興味を持つ宇宙人",
+        text: "この宇宙人は、地球の食べ物についてあまり知りません。地球でどのような食べ物を食べているのか、あなたに教えてもらいたいと思っています。"
+      },
+      {
+        image: "intro_3.gif",
+        alt: "カップケーキ、ブロッコリー、クッキー、クラッカー",
+        text: "今回は、カップケーキ、ブロッコリー、クッキー、クラッカーが登場します。"
+      },
+      {
+        image: "intro_5.gif",
+        alt: "2枚のお皿とふた",
+        text: "２枚のお皿のうち、食べ物の数が多い方を選んで、宇宙人を手伝ってください。食べ物は一瞬でふたに隠れるため、数えずに判断します。"
+      },
+      {
+        image: "instruction_keys_ja.svg",
+        alt: "左はFキー、右はJキーという操作方法",
+        text: "左のお皿を選ぶときはFキー、右のお皿を選ぶときはJキーを押してください。"
+      },
+      {
+        image: "alien_3.png",
+        alt: "答えを待つ宇宙人",
+        text: "できるだけ正確に、直感で答えてください。課題の途中では、正解・不正解は表示されません。"
+      },
+      {
+        image: "alien_7.png",
+        alt: "宇宙人の友達",
+        text: "簡単に感じる問題も、難しく感じる問題もあります。難しいときは、推測で答えてかまいません。"
+      }
+    ];
+  }
+
+  function showAlienIntro(pageIndex) {
+    var pages = introPages();
+    var page = pages[pageIndex];
+    var backButton = pageIndex > 0 ? '<button type="button" id="ft-intro-back" class="ft-button">戻る</button>' : "";
+    var nextLabel = pageIndex === pages.length - 1 ? "課題の説明へ" : "次へ";
+    setHtml('<div class="ft-page" style="text-align:center"><h2>宇宙人の友達を手伝おう</h2>' +
+      '<img class="ft-intro-image" src="' + asset(page.image) + '" alt="' + page.alt + '">' +
+      '<p>' + page.text + '</p><p>' + (pageIndex + 1) + ' / ' + pages.length + '</p>' +
+      '<div class="ft-nav">' + backButton + '<button type="button" id="ft-intro-next" class="ft-button">' + nextLabel + '</button></div></div>');
+    if (pageIndex > 0) {
+      document.getElementById("ft-intro-back").onclick = function () { showAlienIntro(pageIndex - 1); };
+    }
+    document.getElementById("ft-intro-next").onclick = function () {
+      if (pageIndex < pages.length - 1) showAlienIntro(pageIndex + 1);
+      else showTaskInstructions();
+    };
+  }
+
+  function showTaskInstructions() {
+    setHtml('<div class="ft-page"><h2>食べ物の数を判断する課題</h2><p>２枚のお皿に食べ物が一瞬（0.4秒）表示され、その後すぐに蓋で隠れます。食べ物の数が多い方を選んでください。</p>' +
+      '<ul><li>左のお皿を選ぶ：Fキー</li><li>右のお皿を選ぶ：Jキー</li></ul>' +
+      '<p>また、キーを押すと同時に、次の問題が始まります。数える時間はありませんので、直感でお答えください。課題の途中では、正解・不正解は表示されません。</p>' +
+      '<p>ブラウザを最大化し、左手の人差し指をFキー、右手の人差し指をJキーに置いてください。</p>' +
+      '<p style="text-align:center"><button type="button" id="ft-start" class="ft-button">ここをクリックして、画像を読み込んで開始する</button></p></div>');
+    document.getElementById("ft-start").onclick = beginLoading;
   }
 
   function usesSwappedLayout() {
@@ -339,12 +412,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
     setHtml('<div class="ft-page"><div class="ft-warning"><strong>この調査にはPCと物理キーボードが必要です。</strong><br>スマートフォンやタブレットでは参加できません。PCから調査URLを開き直してください。</div></div>');
     return;
   }
-  setHtml('<div class="ft-page"><h2>食べ物の数を判断する課題</h2><p>２枚のお皿に食べ物が一瞬（0.4秒）表示され、その後すぐに蓋で隠れます。食べ物の数が多い方を選んでください。</p>' +
-    '<ul><li>左のお皿を選ぶ：Fキー</li><li>右のお皿を選ぶ：Jキー</li></ul>' +
-    '<p>また、キーを押すと同時に、次の問題が始まります。数える時間はありませんので、直感でお答えください。課題の途中では、正解・不正解は表示されません。</p>' +
-    '<p>ブラウザを最大化し、左手の人差し指をFキー、右手の人差し指をJキーに置いてください。</p>' +
-    '<p style="text-align:center"><button type="button" id="ft-start" class="ft-button">ここをクリックして、画像を読み込んで開始する</button></p></div>');
-  document.getElementById("ft-start").onclick = beginLoading;
+  showAlienIntro(0);
 });
 
 Qualtrics.SurveyEngine.addOnUnload(function () {
