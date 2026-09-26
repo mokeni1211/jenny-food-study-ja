@@ -54,7 +54,7 @@ check(js.includes("宇宙人") && js.includes("地球の食べ物"), "Japanese a
 check(js.includes('asset("alien_10.png")'), "post-task stars screen not found");
 check(js.includes('id="ft-finish"'), "post-task stars continue button not found");
 check(js.includes(".ft-page{width:100%;max-width:1000px"), "1000 px experiment parent width not found");
-check(js.includes(".ft-trial-screen{width:min(94vw,1200px);max-width:none;margin-left:calc((100% - min(94vw,1200px))/2)"), "centered expanded trial container not found");
+check(js.includes(".ft-trial-screen{width:min(90vw,1100px);max-width:none;margin-left:calc((100% - min(90vw,1100px))/2)"), "centered expanded trial container not found");
 check(js.includes("max-width:100%;max-height:72vh"), "responsive task image sizing not found");
 check((js.match(/class=\\?"ft-trial-screen\\?"/g) || []).length >= 2, "trial stimulus and choice screens are not both expanded");
 check(!js.includes("overflow:hidden") && !js.includes("overflow-x:hidden"), "clipping rule remains on expanded trial display");

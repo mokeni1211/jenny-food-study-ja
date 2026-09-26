@@ -11,7 +11,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
 
   /* Change this one line after publishing the static/ directory. */
   var ASSET_BASE_URL = "https://mokeni1211.github.io/jenny-food-study-ja/static";
-  var STUDY_VERSION = "ccb-ja-qualtrics-1.6.10";
+  var STUDY_VERSION = "ccb-ja-qualtrics-1.6.11";
   var practiceItems = ["p1", "p2"];
   var mainItems = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"];
   var canonicalItemOrder = practiceItems.concat(mainItems);
@@ -79,7 +79,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
     "#food-task-root .ft-page{width:100%;max-width:1000px;margin:10px auto;text-align:left;box-sizing:border-box;padding:0 8px}",
     "#food-task-root .ft-page h2{margin:6px 0 10px}",
     "#food-task-root .ft-page p{margin:7px 0}",
-    "#food-task-root .ft-trial-screen{width:min(94vw,1200px);max-width:none;margin-left:calc((100% - min(94vw,1200px))/2);box-sizing:border-box}",
+    "#food-task-root .ft-trial-screen{width:min(90vw,1100px);max-width:none;margin-left:calc((100% - min(90vw,1100px))/2);box-sizing:border-box}",
     "#food-task-root .ft-keys{display:flex;justify-content:space-between;font-size:1.1rem;font-weight:700;margin:0 5% 8px}",
     "#food-task-root .ft-image{display:block;width:auto;height:auto;max-width:100%;max-height:72vh;margin:0 auto;object-fit:contain}",
     "#food-task-root .ft-intro-image{display:block;width:auto;height:auto;max-width:100%;max-height:54vh;margin:5px auto 8px;object-fit:contain}",
