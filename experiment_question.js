@@ -11,7 +11,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
 
   /* Change this one line after publishing the static/ directory. */
   var ASSET_BASE_URL = "https://mokeni1211.github.io/jenny-food-study-ja/static";
-  var STUDY_VERSION = "ccb-ja-qualtrics-1.6.0";
+  var STUDY_VERSION = "ccb-ja-qualtrics-1.6.1";
   var practiceItems = ["p1", "p2"];
   var mainItems = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"];
   var canonicalItemOrder = practiceItems.concat(mainItems);
@@ -108,7 +108,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
     var names = [
       "lid_bg.jpg", "cb_intro.jpg", "cc_intro.jpg",
       "alien_1.png", "alien_8.png", "intro_3.gif", "intro_5.gif",
-      "instruction_keys_ja.svg", "alien_3.png", "alien_5.png", "alien_7.png"
+      "instruction_keys_ja.svg", "alien_3.png", "alien_5.png", "alien_7.png", "alien_10.png"
     ];
     ["cb", "cc"].forEach(function (prefix) {
       canonicalItemOrder.forEach(function (item) { names.push(prefix + "_" + item + ".jpeg"); });
@@ -145,8 +145,8 @@ Qualtrics.SurveyEngine.addOnload(function () {
       },
       {
         image: "alien_3.png",
-        alt: "答えを待つ宇宙人",
-        text: "できるだけ正確に、直感で答えてください。課題の途中では、正解・不正解は表示されません。"
+        alt: "星を持つ宇宙人",
+        text: "すべての問題が終わると、宇宙人が星を見せてくれます。できるだけ正確に、直感で答えてください。"
       },
       {
         image: "alien_7.png",
@@ -394,9 +394,15 @@ Qualtrics.SurveyEngine.addOnload(function () {
       setExperimentData("experiment_started_at", startedAt);
       setExperimentData("experiment_finished_at", new Date().toISOString());
       saveAnalysisSummary();
-      setHtml('<div class="ft-page" style="text-align:center"><h2>課題が終了しました</h2><p>回答をQualtricsに反映しています。画面が自動で切り替わるまで、そのままお待ちください。</p></div>');
-      /* Give JFE a full event-loop turn before submitting this page. */
-      window.setTimeout(function () { q.clickNextButton(); }, 1500);
+      setHtml('<div class="ft-page" style="text-align:center"><h2>すべての判断課題が終わりました！</h2>' +
+        '<img class="ft-intro-image" src="' + asset("alien_10.png") + '" alt="たくさんの星を見せてくれる宇宙人">' +
+        '<p>見てください、たくさんの星です！ 宇宙人のお手伝いをしてくださり、ありがとうございました。</p>' +
+        '<p>下のボタンを押して、次のページへ進んでください。</p>' +
+        '<button type="button" id="ft-finish" class="ft-button">次へ進む</button></div>');
+      document.getElementById("ft-finish").onclick = function () {
+        document.getElementById("ft-finish").disabled = true;
+        q.clickNextButton();
+      };
     } catch (error) {
       console.error(error);
       setHtml('<div class="ft-page"><div class="ft-warning"><strong>課題データをQualtricsへ渡せませんでした。</strong><br>この画面を閉じず、調査担当者へご連絡ください。</div></div>');
