@@ -11,7 +11,8 @@ Qualtrics.SurveyEngine.addOnload(function () {
 
   /* Change this one line after publishing the static/ directory. */
   var ASSET_BASE_URL = "https://mokeni1211.github.io/jenny-food-study-ja/static";
-  var STUDY_VERSION = "ccb-ja-qualtrics-1.6.11";
+  var STUDY_VERSION = "ccb-ja-qualtrics-1.7.0";
+  var INTRO_MINIMUM_MS = 8000;
   var practiceItems = ["p1", "p2"];
   var mainItems = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"];
   var canonicalItemOrder = practiceItems.concat(mainItems);
@@ -52,6 +53,8 @@ Qualtrics.SurveyEngine.addOnload(function () {
   var blockIndex = 0;
   var itemIndex = 0;
   var keyHandler = null;
+  var introLockTimeout = null;
+  var introCountdownInterval = null;
   var startedAt = new Date().toISOString();
   var style = document.createElement("style");
 
@@ -123,58 +126,79 @@ Qualtrics.SurveyEngine.addOnload(function () {
     return [
       {
         image: "alien_1.png",
-        alt: "宇宙人の友達",
-        text: "これから、別の星から来た宇宙人の友達と一緒に、食べ物の数を判断するゲームを行います。"
+        alt: "",
+        text: "さあ、ゲームの準備ができました！今日は、別の星からやってきた宇宙人のお友だちと一緒に、数のゲームをします。"
       },
       {
         image: "alien_8.png",
-        alt: "地球の食べ物に興味を持つ宇宙人",
-        text: "この宇宙人は、地球の食べ物についてあまり知りません。地球でどのような食べ物を食べているのか、あなたに教えてもらいたいと思っています。"
+        alt: "",
+        text: "宇宙人のお友だちは、まだ地球のことをよく知りません。そこで、みんなと一緒におやつを食べながら、地球の食べ物について知りたいと思っています。"
       },
       {
         image: "intro_3.gif",
-        alt: "カップケーキ、ブロッコリー、クッキー、クラッカー",
-        text: "今回は、カップケーキ、ブロッコリー、クッキー、クラッカーが登場します。"
+        alt: "",
+        text: "今日食べるのは、カップケーキ、ブロッコリー、クッキー、クラッカーです。みなさんには、宇宙人のお友だちに、地球の食べ物について教えてもらいます。"
       },
       {
         image: "intro_5.gif",
-        alt: "2枚のお皿とふた",
-        text: "２枚のお皿のうち、食べ物の数が多い方を選んで、宇宙人を手伝ってください。食べ物は一瞬でふたに隠れるため、数えずに判断します。"
+        alt: "",
+        text: "２つのお皿を見て、食べ物が多いほうを選んでください。食べ物はすぐにふたで隠れるので、数える時間はありません。直感で、「こっちのほうが多そう！」と当ててみてください。"
       },
       {
         image: "instruction_keys_ja.svg",
-        alt: "左はFキー、右はJキーという操作方法",
-        text: "左のお皿を選ぶときはFキー、右のお皿を選ぶときはJキーを押してください。"
+        alt: "どっちが多かった？",
+        text: "ふたが閉じたら、多いと思うほうのお皿のキーを押してください。左のお皿は「F」、右のお皿は「J」です。"
       },
       {
         image: "alien_3.png",
-        alt: "星を持つ宇宙人",
-        text: "すべての問題が終わると、宇宙人が星を見せてくれます。できるだけ正確に、直感で答えてください。"
+        alt: "",
+        text: "すべての問題が終わったら、正しく選べた問題の数だけ、宇宙人のお友だちから星がもらえます。"
       },
       {
         image: "alien_7.png",
         alt: "宇宙人の友達",
-        text: "簡単に感じる問題も、難しく感じる問題もあります。難しいときは、推測で答えてかまいません。"
+        text: "簡単な問題もあれば、むずかしい問題もあります。むずかしいときは、「こっちかな？」と思うほうを選んで大丈夫です。"
       }
     ];
   }
 
   function showAlienIntro(pageIndex) {
+    if (introLockTimeout !== null) window.clearTimeout(introLockTimeout);
+    if (introCountdownInterval !== null) window.clearInterval(introCountdownInterval);
+    introLockTimeout = null;
+    introCountdownInterval = null;
     var pages = introPages();
     var page = pages[pageIndex];
     var backButton = pageIndex > 0 ? '<button type="button" id="ft-intro-back" class="ft-button">戻る</button>' : "";
     var nextLabel = pageIndex === pages.length - 1 ? "課題の説明へ" : "次へ";
-    setHtml('<div class="ft-page" style="text-align:center"><h2>宇宙人の友達を手伝おう</h2>' +
+    setHtml('<div class="ft-page" style="text-align:center"><h2></h2>' +
       '<img class="ft-intro-image" src="' + asset(page.image) + '" alt="' + page.alt + '">' +
       '<p>' + page.text + '</p><p>' + (pageIndex + 1) + ' / ' + pages.length + '</p>' +
-      '<div class="ft-nav">' + backButton + '<button type="button" id="ft-intro-next" class="ft-button">' + nextLabel + '</button></div></div>');
+      '<div class="ft-nav">' + backButton + '<button type="button" id="ft-intro-next" class="ft-button">' + nextLabel + '（8秒）</button></div></div>');
+    var back = pageIndex > 0 ? document.getElementById("ft-intro-back") : null;
+    var next = document.getElementById("ft-intro-next");
+    var deadline = performance.now() + INTRO_MINIMUM_MS;
+    next.disabled = true;
+    if (back) back.disabled = true;
     if (pageIndex > 0) {
-      document.getElementById("ft-intro-back").onclick = function () { showAlienIntro(pageIndex - 1); };
+      back.onclick = function () { showAlienIntro(pageIndex - 1); };
     }
-    document.getElementById("ft-intro-next").onclick = function () {
+    next.onclick = function () {
       if (pageIndex < pages.length - 1) showAlienIntro(pageIndex + 1);
       else showTaskInstructions();
     };
+    introCountdownInterval = window.setInterval(function () {
+      var seconds = Math.max(1, Math.ceil((deadline - performance.now()) / 1000));
+      next.textContent = nextLabel + "（" + seconds + "秒）";
+    }, 250);
+    introLockTimeout = window.setTimeout(function () {
+      window.clearInterval(introCountdownInterval);
+      introCountdownInterval = null;
+      introLockTimeout = null;
+      next.disabled = false;
+      next.textContent = nextLabel;
+      if (back) back.disabled = false;
+    }, INTRO_MINIMUM_MS);
   }
 
   function showTaskInstructions() {
