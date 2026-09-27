@@ -11,8 +11,9 @@ Qualtrics.SurveyEngine.addOnload(function () {
 
   /* Change this one line after publishing the static/ directory. */
   var ASSET_BASE_URL = "https://mokeni1211.github.io/jenny-food-study-ja/static";
-  var STUDY_VERSION = "ccb-ja-qualtrics-1.7.0";
+  var STUDY_VERSION = "ccb-ja-qualtrics-1.7.1";
   var INTRO_MINIMUM_MS = 8000;
+  var BLOCK_INTRO_MINIMUM_MS = 8000;
   var practiceItems = ["p1", "p2"];
   var mainItems = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"];
   var canonicalItemOrder = practiceItems.concat(mainItems);
@@ -55,6 +56,8 @@ Qualtrics.SurveyEngine.addOnload(function () {
   var keyHandler = null;
   var introLockTimeout = null;
   var introCountdownInterval = null;
+  var blockIntroLockTimeout = null;
+  var blockIntroCountdownInterval = null;
   var startedAt = new Date().toISOString();
   var style = document.createElement("style");
 
@@ -264,13 +267,32 @@ Qualtrics.SurveyEngine.addOnload(function () {
   }
 
   function showBlockIntro() {
+    if (blockIntroLockTimeout !== null) window.clearTimeout(blockIntroLockTimeout);
+    if (blockIntroCountdownInterval !== null) window.clearInterval(blockIntroCountdownInterval);
+    blockIntroLockTimeout = null;
+    blockIntroCountdownInterval = null;
     var block = blockOrder[blockIndex];
     var foods = block === "cb" ? "カップケーキとブロッコリー" : "クッキーとクラッカー";
+    var startLabel = "ここをクリックして、問題を始める。クリックとともに、２枚のお皿が一瞬で表示されます。";
     setHtml('<div class="ft-page" style="text-align:center"><h2>ブロック ' + (blockIndex + 1) + ' / 2</h2>' +
       '<p>このブロックでは、' + foods + 'が表示されます。<br>２枚のお皿のうち、食べ物の数が多い方を選んでください。</p>' +
       '<img class="ft-image" src="' + asset(block + "_intro.jpg") + '" alt="このブロックで使用する食品">' +
-      '<button type="button" id="ft-block-start" class="ft-button">ここをクリックして、問題を始める。クリックとともに、２枚のお皿が一瞬で表示されます。</button></div>');
-    document.getElementById("ft-block-start").onclick = showStimulus;
+      '<button type="button" id="ft-block-start" class="ft-button">' + startLabel + '（8秒）</button></div>');
+    var startButton = document.getElementById("ft-block-start");
+    var deadline = performance.now() + BLOCK_INTRO_MINIMUM_MS;
+    startButton.disabled = true;
+    startButton.onclick = showStimulus;
+    blockIntroCountdownInterval = window.setInterval(function () {
+      var seconds = Math.max(1, Math.ceil((deadline - performance.now()) / 1000));
+      startButton.textContent = startLabel + "（" + seconds + "秒）";
+    }, 250);
+    blockIntroLockTimeout = window.setTimeout(function () {
+      window.clearInterval(blockIntroCountdownInterval);
+      blockIntroCountdownInterval = null;
+      blockIntroLockTimeout = null;
+      startButton.disabled = false;
+      startButton.textContent = startLabel;
+    }, BLOCK_INTRO_MINIMUM_MS);
   }
 
   function showStimulus() {

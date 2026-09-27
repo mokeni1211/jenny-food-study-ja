@@ -51,6 +51,9 @@ check(js.includes("function showAlienIntro(pageIndex)"), "alien introduction scr
 check(js.includes("var INTRO_MINIMUM_MS = 8000"), "eight-second introduction minimum not found");
 check(js.includes("next.disabled = true") && js.includes("if (back) back.disabled = true"), "introduction navigation is not locked during minimum exposure");
 check(js.includes("}, INTRO_MINIMUM_MS)"), "introduction navigation unlock timer not found");
+check(js.includes("var BLOCK_INTRO_MINIMUM_MS = 8000"), "eight-second block-introduction minimum not found");
+check(js.includes("startButton.disabled = true"), "block-introduction start button is not locked during minimum exposure");
+check(js.includes("}, BLOCK_INTRO_MINIMUM_MS)"), "block-introduction unlock timer not found");
 check(js.includes("function showTaskInstructions()"), "task instructions after introduction not found");
 check(js.includes("showAlienIntro(0)"), "experiment does not start from the alien introduction");
 check(js.includes("宇宙人") && js.includes("地球の食べ物"), "Japanese alien introduction wording not found");
